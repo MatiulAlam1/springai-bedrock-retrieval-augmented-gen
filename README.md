@@ -10,25 +10,25 @@ The project is organized as follows:
 
 rag-spring-ai-bedrock
 ├── src
-│ └── main
-│ ├── java
-│ │ └── com
-│ │ └── example
-│ │ └── rag
-│ │ ├── RagApplication.java
-│ │ ├── config
-│ │ │ └── BedrockConfig.java
-│ │ ├── controller
-│ │ │ └── ChatController.java
-│ │ ├── service
-│ │ │ ├── EmbeddingService.java
-│ │ │ ├── VectorStoreService.java
-│ │ │ └── ChatService.java
-│ │ └── model
-│ │ └── ChatRequest.java
-│ └── resources
-│ ├── application.yml
-│ └── static
+│   └── main
+│       ├── java
+│       │   └── com
+│       │       └── example
+│       │           └── rag
+│       │               ├── RagApplication.java
+│       │               ├── config
+│       │               │   └── BedrockConfig.java
+│       │               ├── controller
+│       │               │   └── ChatController.java
+│       │               ├── service
+│       │               │   ├── EmbeddingService.java
+│       │               │   ├── VectorStoreService.java
+│       │               │   └── ChatService.java
+│       │               └── model
+│       │                   └── ChatRequest.java
+│       └── resources
+│           ├── application.yml
+│           └── static
 ├── pom.xml
 └── README.md
 
