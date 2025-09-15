@@ -1,103 +1,113 @@
+
 # RAG with Spring AI, AWS Bedrock, and Qdrant
 
 ## Overview
-The RAG Spring AI Bedrock project is a Spring Boot application that demonstrates a complete Retrieval-Augmented Generation (RAG) pipeline. It leverages the **Spring AI** framework to seamlessly integrate with large language models (LLMs) from **AWS Bedrock** and a vector database for efficient data retrieval.
+The **RAG Spring AI Bedrock** project is a **Spring Boot application** that demonstrates a complete **Retrieval-Augmented Generation (RAG)** pipeline. It integrates:
 
-This application allows users to send chat requests, which are then enriched with relevant context retrieved from **Qdrant**, our vector database. The combined prompt is then sent to **AWS Bedrock** to generate a response using the powerful **`anthropic.claude-3-5-sonnet-20241022-v2:0`** model.
+- **Spring AI** – orchestrates AI workflows  
+- **AWS Bedrock** – hosts large language models (LLMs) like **Anthropic Claude 3.5 Sonnet**  
+- **Qdrant** – vector database for semantic search and document retrieval  
+
+The workflow is as follows:
+
+1. Users send a chat request or upload a document.  
+2. Text is converted into embeddings and matched against documents stored in **Qdrant**.  
+3. Relevant documents are retrieved and added as context.  
+4. The enriched prompt is sent to **AWS Bedrock** for response generation.  
+5. The AI returns a **context-aware answer**.  
+
+This makes the system capable of **knowledge-augmented conversations** and **document-based Q&A**.
 
 ## Project Structure
-The project is organized as follows:
-
+```
 rag-spring-ai-bedrock
 ├── src
 │   └── main
-│       ├── java
-│       │   └── com
-│       │       └── example
-│       │           └── rag
-│       │               ├── RagApplication.java
-│       │               ├── config
-│       │               │   └── BedrockConfig.java
-│       │               ├── controller
-│       │               │   └── ChatController.java
-│       │               ├── service
-│       │               │   ├── EmbeddingService.java
-│       │               │   ├── VectorStoreService.java
-│       │               │   └── ChatService.java
-│       │               └── model
-│       │                   └── ChatRequest.java
+│       ├── java/com/example/rag
+│       │   ├── RagApplication.java
+│       │   ├── config/BedrockConfig.java
+│       │   ├── controller/ChatController.java
+│       │   ├── service
+│       │   │   ├── EmbeddingService.java
+│       │   │   ├── VectorStoreService.java
+│       │   │   └── ChatService.java
+│       │   └── model/ChatRequest.java
 │       └── resources
 │           ├── application.yml
 │           └── static
 ├── pom.xml
 └── README.md
+```
 
 ## Setup Instructions
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/your-repo/rag-spring-ai-bedrock.git
-    cd rag-spring-ai-bedrock
-    ```
+1. Clone the Repository:
+\`\`\`bash
+git clone https://github.com/your-repo/rag-spring-ai-bedrock.git
+cd rag-spring-ai-bedrock
+\`\`\`
 
-2.  **Run Qdrant Vector Database**
-    Ensure you have a running instance of Qdrant. The easiest way to get started is with Docker:
-    ```bash
-    docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
-    ```
+2. Run Qdrant (Vector Database):
+\`\`\`bash
+docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
+\`\`\`
 
-3.  **Configure Application Properties**
-    Update the `src/main/resources/application.yml` file with your AWS credentials, the Bedrock model ID, and the Qdrant connection details.
+3. Configure Application Properties (`application.yml`):
+\`\`\`yaml
+spring:
+  ai:
+    bedrock:
+      anthropic:
+        chat:
+          model: anthropic.claude-3-5-sonnet-20241022-v2:0
+      aws:
+        region: us-east-1
+        access-key: YOUR_AWS_ACCESS_KEY
+        secret-key: YOUR_AWS_SECRET_KEY
+    vector-store:
+      qdrant:
+        host: localhost
+        port: 6333
+\`\`\`
 
-    ```yaml
-    spring:
-      ai:
-        bedrock:
-          anthropic:
-            chat:
-              model: anthropic.claude-3-5-sonnet-20241022-v2:0
-          aws:
-            region: us-east-1 # Or your preferred AWS region
-            access-key: YOUR_AWS_ACCESS_KEY
-            secret-key: YOUR_AWS_SECRET_KEY
-        vector-store:
-          qdrant:
-            host: localhost
-            port: 6333
-    ```
+4. Build the Project:
+\`\`\`bash
+mvn clean install
+\`\`\`
 
-4.  **Build the Project**
-    Use Maven to build the project:
-    ```bash
-    mvn clean install
-    ```
+5. Run the Application:
+\`\`\`bash
+mvn spring-boot:run
+\`\`\`
 
-5.  **Run the Application**
-    Start the Spring Boot application:
-    ```bash
-    mvn spring-boot:run
-    ```
+6. Access the API at `/api/chat`.
 
-6.  **Access the API**
-    The application exposes a REST API for chat interactions. You can send requests to the `/chat` endpoint to interact with the AI model.
+## REST API Endpoints
 
-## Usage Guidelines
-- Send a `POST` request to the `/chat` endpoint with a JSON body containing your message.
-- The application will first convert your message into an embedding and use it to search for relevant documents in the Qdrant vector store.
-- The retrieved documents are then added as context to your original message and sent to the Anthropic Claude 3.5 Sonnet model via AWS Bedrock.
-- The final, context-aware response generated by the model is returned.
+### Index Document
+POST `/api/chat/index` – Upload a file to add to Qdrant.
+
+Example:
+\`\`\`bash
+curl -X POST http://localhost:8080/api/chat/index -F "file=@example.pdf"
+\`\`\`
+
+### Query Vector DB & Chat
+POST `/api/chat/query` – Send a text query to get a context-aware response.
+
+Example:
+\`\`\`bash
+curl -X POST http://localhost:8080/api/chat/query -H "Content-Type: application/json" -d '"What is Retrieval-Augmented Generation?"'
+\`\`\`
 
 ## Dependencies
-This project uses the following key dependencies:
--   **Spring Boot:** Core application framework.
--   **Spring AI:** For orchestrating the RAG pipeline and integrating AI components.
-    -   `spring-ai-bedrock-starter`: For connecting to AWS Bedrock.
-    -   `spring-ai-qdrant-store-starter`: For connecting to the Qdrant vector database.
--   **AWS SDK for Java:** Underpinning the communication with AWS services.
--   Other necessary libraries as defined in the `pom.xml` file.
+- Spring Boot
+- Spring AI (`spring-ai-bedrock-starter`, `spring-ai-qdrant-store-starter`)
+- AWS SDK for Java
 
 ## Contributing
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
+- Open issues for bugs/features
+- Submit pull requests for improvements
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+MIT License
